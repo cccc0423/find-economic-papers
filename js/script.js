@@ -4,20 +4,14 @@ let allJournals = [];
 // Load data from CSV files in data directory
 async function loadData() {
     try {
-        // First, get list of CSV files in data directory
-        const files = await getDataFiles();
-        if (files.length === 0) {
+        // Load the combined CSV file
+        allPapers = await loadCSVFile('data/all_papers.csv');
+        
+        if (allPapers.length === 0) {
             document.getElementById('results').innerHTML = 
-                '<div class="no-results">在 data 資料夾中沒有找到任何 CSV 檔案</div>';
+                '<div class="no-results">在 data 資料夾中沒有找到資料</div>';
             return;
         }
-        
-        // Load all CSV files
-        const loadPromises = files.map(file => loadCSVFile(`data/${file}`));
-        const allData = await Promise.all(loadPromises);
-        
-        // Combine all papers from all files
-        allPapers = allData.flat();
         
         initializeJournals();
         setupEventListeners();
@@ -26,24 +20,14 @@ async function loadData() {
     } catch (error) {
         console.error('Error loading data:', error);
         document.getElementById('results').innerHTML = 
-            '<div class="no-results">無法載入資料檔案，請確認 data 資料夾存在且包含 CSV 檔案</div>';
+            '<div class="no-results">無法載入資料檔案，請確認 data/all_papers.csv 存在</div>';
     }
 }
 
-// Get list of CSV files in data directory
+// This function is no longer needed since we use a single combined file
+// Kept for potential future use
 async function getDataFiles() {
-    try {
-        // Load the files list from files.json
-        const response = await fetch('data/files.json');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const files = await response.json();
-        return files;
-    } catch (error) {
-        console.error('Error getting data files:', error);
-        return [];
-    }
+    return ['all_papers.csv'];
 }
 
 // Load individual CSV file
