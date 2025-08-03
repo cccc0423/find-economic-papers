@@ -33,45 +33,13 @@ async function loadData() {
 // Get list of CSV files in data directory
 async function getDataFiles() {
     try {
-        // Since we can't directly list directory contents in browser,
-        // we'll try to load a manifest file or use a predefined list
-        // For now, we'll try to fetch files based on common patterns
-        const journals = [
-            "American_Economic_Review",
-            "The_Quarterly_Journal_of_Economics", 
-            "Journal_of_Political_Economy",
-            "The_Review_of_Economic_Studies",
-            "Econometrica",
-            "The_Review_of_Economics_and_Statistics",
-            "Journal_of_Econometrics",
-            "Journal_of_Economic_Literature",
-            "AEJ_Applied_Economics",
-            "AEJ_Economic_Policy"
-        ];
-        
-        const years = [];
-        for (let year = 2000; year <= 2025; year++) {
-            years.push(year);
+        // Load the files list from files.json
+        const response = await fetch('data/files.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
-        const availableFiles = [];
-        
-        // Check which files exist by trying to fetch them
-        for (const journal of journals) {
-            for (const year of years) {
-                const filename = `${journal}_${year}.csv`;
-                try {
-                    const response = await fetch(`data/${filename}`, { method: 'HEAD' });
-                    if (response.ok) {
-                        availableFiles.push(filename);
-                    }
-                } catch (e) {
-                    // File doesn't exist, continue
-                }
-            }
-        }
-        
-        return availableFiles;
+        const files = await response.json();
+        return files;
     } catch (error) {
         console.error('Error getting data files:', error);
         return [];
