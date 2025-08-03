@@ -1,0 +1,301 @@
+html {
+    font-size: 16px; /* 設定基準字體大小 */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f5f5;
+    font-size: 1rem; /* 1rem = 16px */
+}
+
+.data-info {
+    font-size: 0.9rem; /* 與 Last updated 保持一致或略小 */
+    color: #666;
+    margin-top: 5px; /* 與上方段落的間距 */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 1.8rem; /* 範例：約 29px */
+}
+
+.search-panel {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+}
+
+.search-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.search-group {
+    flex: 1;
+    min-width: 250px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.search-tip-inline {
+    font-size: 0.75em; /* 相對於父元素 label 的字體大小 */
+    color: #888;
+    font-weight: normal; /* 避免加粗 */
+}
+
+@media (max-width: 768px) {
+    .search-tip-inline {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.7em;
+    }
+}
+
+input[type="text"], input[type="number"], select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus, input[type="number"]:focus, select:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.year-group {
+    display: flex;
+    gap: 10px;
+}
+
+.year-group input {
+    flex: 1;
+}
+
+.journal-select {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0; /* 更柔和的邊框 */
+    border-radius: 8px; /* 稍微大一點的圓角 */
+    padding: 8px; /* 稍微減少內部填充 */
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); /* 輕微的陰影 */
+}
+
+.journal-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px; /* 稍微減少選項間距 */
+    padding: 4px 8px; /* 增加選項的內部填充，使其看起來更寬敞 */
+    border-radius: 4px; /* 為懸停效果增加圓角 */
+    transition: background-color 0.2s ease; /* 平滑的背景顏色過渡 */
+}
+
+.journal-option:hover {
+    background-color: #f0f0f0; /* 懸停時的背景顏色 */
+}
+
+.journal-option input {
+    margin-right: 8px;
+    width: auto;
+    cursor: pointer; /* 確保滑鼠指標是手型 */
+}
+
+.journal-option label {
+    cursor: pointer;
+    display: block;
+    padding: 5px 0;
+    width: 100%;
+    flex-grow: 1;
+}
+
+.results-info {
+    background: #e8f4fd;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #2980b9;
+}
+
+.paper-card {
+    background: white;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.paper-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.paper-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.paper-title:hover {
+    color: #3498db;
+}
+
+.paper-title-link {
+    color: inherit;
+    text-decoration: none;
+    display: inline-block;
+    padding: 5px 0;
+}
+
+.paper-title-link:hover {
+    color: #3498db;
+}
+
+.paper-meta {
+    display: flex;
+    gap: 20px;
+    color: #666;
+    font-size: 14px;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+}
+
+.meta-label {
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+.abstract-section {
+    padding: 0 20px 20px;
+}
+
+.abstract-toggle {
+    background: #f8f9fa;
+    border: none;
+    padding: 12px 20px;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-weight: 600;
+    color: #555;
+    transition: background-color 0.3s;
+}
+
+.abstract-toggle:hover {
+    background: #e9ecef;
+}
+
+.abstract-content {
+    padding: 15px 20px;
+    line-height: 1.7;
+    color: #444;
+    display: none;
+}
+
+.abstract-content.show {
+    display: block;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    background: white;
+    border-radius: 10px;
+}
+
+.doi-link {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.doi-link:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    html {
+        font-size: 15px; /* 稍微縮小基準字體 */
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+    .search-panel {
+        padding: 20px;
+    }
+
+    .search-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .year-group {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .paper-meta {
+        flex-direction: column;
+        align-items: flex-start; /* 讓項目靠左對齊 */
+        gap: 8px;
+    }
+    
+    .meta-item {
+        align-items: flex-start;
+    }
+    
+    .meta-label {
+        white-space: nowrap;
+    }
+
+    .abstract-toggle {
+        padding: 12px 20px;
+    }
+}
