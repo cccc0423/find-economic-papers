@@ -35,7 +35,3 @@ wheels/
 .DS_Store
 Thumbs.db
 
-# Output files
-*.csv
-*.json
-papers/
