@@ -145,12 +145,66 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
     color: #2980b9;
 }
 
+.load-more-hint {
+    font-size: 0.85em;
+    color: #666;
+    font-weight: normal;
+    margin-left: 10px;
+}
+
+.loading-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ddd;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.results-container {
+    position: relative;
+}
+
+.load-more-trigger {
+    height: 20px;
+    visibility: hidden;
+}
+
+.loading-more {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+    background: #f9f9f9;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
 .paper-card {
     background: white;
     margin-bottom: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     overflow: hidden;
+    transform: translateZ(0); /* Force GPU acceleration */
+    will-change: transform; /* Optimize for transforms */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.paper-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .paper-header {
