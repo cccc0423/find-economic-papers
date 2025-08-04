@@ -3,9 +3,10 @@ from bs4 import BeautifulSoup
 import csv
 import os
 import re
+import time
 
 def get_year_urls(soup, base_url):
-    """Creates a mapping of years to the URLs where their papers are listed."""
+    """Creates a mapping of years to lists of unique URLs where their papers are listed."""
     year_urls = {}
     # Older years are on separate pages (e.g., default1.htm)
     for link in soup.find_all('a', href=lambda href: href and 'default' in href):
@@ -13,7 +14,12 @@ def get_year_urls(soup, base_url):
             year_text = link.next_sibling.strip().strip('()')
             if year_text.isdigit():
                 year = int(year_text)
-                year_urls[year] = requests.compat.urljoin(base_url, link['href'])
+                url = requests.compat.urljoin(base_url, link['href'])
+                if year not in year_urls:
+                    year_urls[year] = []
+                # Only add URL if it's not already in the list (avoid duplicates)
+                if url not in year_urls[year]:
+                    year_urls[year].append(url)
 
     # Recent years are on the main page
     all_years_on_page = set()
@@ -27,7 +33,7 @@ def get_year_urls(soup, base_url):
 
     recent_years = all_years_on_page - set(year_urls.keys())
     for year in recent_years:
-        year_urls[year] = base_url
+        year_urls[year] = [base_url]
 
     return year_urls
 
@@ -61,21 +67,32 @@ def scrape_abstract_and_url(paper_url):
                     break
 
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching data from {paper_url}: {e}")
+        print(f"          ERROR: Failed to fetch {paper_url}: {e}")
+    except Exception as e:
+        print(f"          ERROR: Failed to parse content from {paper_url}: {e}")
     return abstract, journal_url
 
 def scrape_papers_for_year(page_soup, journal_name, year, base_url):
     """Scrapes all papers for a specific year from a given page soup."""
     papers = []
+    paper_count = 0
+    
     # Find all volume headers for the selected year
     for b_tag in page_soup.find_all('b'):
-        if str(year) in b_tag.text:
+        # Check if this b_tag contains the year and appears to be a volume header
+        if str(year) in b_tag.text and ('vol' in b_tag.text.lower() or 'issue' in b_tag.text.lower() or len(b_tag.text.split(',')) > 1):
+            print(f"      Processing section: {b_tag.text.strip()}")
             dl_tag = b_tag.find_next_sibling('dl')
             if dl_tag:
-                for dt in dl_tag.find_all('dt'):
+                dt_tags = dl_tag.find_all('dt')
+                print(f"        Found {len(dt_tags)} papers in this section")
+                
+                for dt in dt_tags:
                     title_tag = dt.find('a')
                     if title_tag:
+                        paper_count += 1
                         title = title_tag.text.strip()
+                        print(f"        [{paper_count}] Processing: {title[:60]}...")
                         # Construct the absolute URL for the paper's page
                         paper_url = requests.compat.urljoin(base_url, title_tag['href'])
                         abstract, journal_url = scrape_abstract_and_url(paper_url)
@@ -105,6 +122,12 @@ def main():
         "Journal of Economic Literature": "https://econpapers.repec.org/article/aeajeclit/",
         "AEJ: Applied Economics": "https://econpapers.repec.org/article/aeaaejapp/",
         "AEJ: Economic Policy": "https://econpapers.repec.org/article/aeaaejpol/",
+        "Journal of Labor Economics": "https://econpapers.repec.org/article/ucpjlabec/",
+        "Journal of Public Economics": "https://econpapers.repec.org/article/eeepubeco/",
+        "Journal of European Economic Association": "https://econpapers.repec.org/article/oupjeurec/",
+        "Journal of Finance": "https://econpapers.repec.org/article/blajfinan/",
+        "Journal of Financial Economics": "https://econpapers.repec.org/article/eeejfinec/",
+        "The Review of Financial Studies": "https://econpapers.repec.org/article/ouprfinst/"
     }
 
     print("Available journals:")
@@ -143,18 +166,28 @@ def main():
                     print(f"Warning: Year {year} not available for {journal_name}. Skipping...")
                     continue
                 print(f"Scraping {journal_name} for year {year}...")
-                page_url = year_urls[year]
-                if page_url == url:
-                    page_soup = soup
-                else:
-                    page_response = requests.get(page_url)
-                    page_response.raise_for_status()
-                    page_soup = BeautifulSoup(page_response.content, 'html.parser')
                 
-                papers = scrape_papers_for_year(page_soup, journal_name, year, page_url)
-                print(f"Found {len(papers)} papers in {journal_name} for {year}.")
+                all_papers_for_year = []
+                page_urls = year_urls[year]
                 
-                if papers:
+                for page_url in page_urls:
+                    print(f"  Processing: {page_url}")
+                    if page_url == url:
+                        page_soup = soup
+                    else:
+                        print(f"    Fetching page content...")
+                        page_response = requests.get(page_url)
+                        page_response.raise_for_status()
+                        page_soup = BeautifulSoup(page_response.content, 'html.parser')
+                    
+                    papers = scrape_papers_for_year(page_soup, journal_name, year, page_url)
+                    print(f"    Found {len(papers)} papers in this page")
+                    all_papers_for_year.extend(papers)
+                    print(f"    Total papers so far: {len(all_papers_for_year)}")
+                
+                print(f"Found {len(all_papers_for_year)} papers in {journal_name} for {year}.")
+                
+                if all_papers_for_year:
                     # Create safe filename
                     safe_journal_name = re.sub(r'[^\w\s-]', '', journal_name).strip().replace(' ', '_')
                     filename = f"{safe_journal_name}_{year}.csv"
@@ -164,7 +197,7 @@ def main():
                         fieldnames = ['journal', 'year', 'title', 'authors', 'abstract', 'url']
                         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                         writer.writeheader()
-                        writer.writerows(papers)
+                        writer.writerows(all_papers_for_year)
                     print(f"Data saved to {filepath}")
                 else:
                     print(f"No papers found for {journal_name} {year}.")

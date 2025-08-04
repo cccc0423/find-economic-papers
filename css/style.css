@@ -35,6 +35,29 @@ h1 {
     font-size: 1.8rem; /* 範例：約 29px */
 }
 
+.panel-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.error-report-banner {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.error-report-banner a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.error-report-banner a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+
 .search-panel {
     background: white;
     padding: 25px;
