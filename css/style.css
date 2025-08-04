@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
 html {
-    font-size: 16px; /* 設定基準字體大小 */
+    font-size: 16px;
 }
 
 * {
@@ -9,17 +11,17 @@ html {
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
     color: #333;
     background-color: #f5f5f5;
-    font-size: 1rem; /* 1rem = 16px */
+    font-size: 1rem;
 }
 
 .data-info {
-    font-size: 0.9rem; /* 與 Last updated 保持一致或略小 */
+    font-size: 0.9rem;
     color: #666;
-    margin-top: 5px; /* 與上方段落的間距 */
+    margin-top: 5px;
 }
 
 .container {
@@ -32,7 +34,7 @@ h1 {
     text-align: center;
     color: #2c3e50;
     margin-bottom: 30px;
-    font-size: 1.8rem; /* 範例：約 29px */
+    font-size: 1.8rem;
 }
 
 .panel-header {
@@ -86,9 +88,9 @@ label {
 }
 
 .search-tip-inline {
-    font-size: 0.75em; /* 相對於父元素 label 的字體大小 */
+    font-size: 0.75em;
     color: #888;
-    font-weight: normal; /* 避免加粗 */
+    font-weight: normal;
 }
 
 @media (max-width: 768px) {
