@@ -29,7 +29,13 @@
             </div>
             
             <div class="search-group">
-                <label>期刊選擇 <span class="search-tip-inline">（可複選）</span></label>
+                <div class="journal-header">
+                    <label>期刊選擇 <span class="search-tip-inline">（可複選）</span></label>
+                    <div class="journal-controls">
+                        <button type="button" id="selectAllBtn" class="select-all-btn">全選</button>
+                        <button type="button" id="deselectAllBtn" class="select-all-btn">全不選</button>
+                    </div>
+                </div>
                 <div class="journal-select" id="journalSelect">
                     <div class="loading">載入中...</div>
                 </div>

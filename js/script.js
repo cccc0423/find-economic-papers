@@ -160,6 +160,37 @@ function setupEventListeners() {
             performSearch();
         }
     });
+    
+    // Select all button
+    document.getElementById('selectAllBtn').addEventListener('click', selectAllJournals);
+    
+    // Deselect all button
+    document.getElementById('deselectAllBtn').addEventListener('click', deselectAllJournals);
+}
+
+// Select all journals
+async function selectAllJournals() {
+    const checkboxes = document.querySelectorAll('#journalSelect input[type="checkbox"]');
+    
+    for (const checkbox of checkboxes) {
+        if (!checkbox.checked) {
+            checkbox.checked = true;
+            await loadJournalDataIfNeeded(checkbox.value, true);
+        }
+    }
+    
+    performSearch();
+}
+
+// Deselect all journals
+function deselectAllJournals() {
+    const checkboxes = document.querySelectorAll('#journalSelect input[type="checkbox"]');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    performSearch();
 }
 
 // Perform search based on inputs

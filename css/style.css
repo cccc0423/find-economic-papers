@@ -124,6 +124,37 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
     flex: 1;
 }
 
+.journal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+}
+
+.journal-controls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.select-all-btn {
+    background: #f8f9fa;
+    color: #555;
+    border: 1px solid #ddd;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.select-all-btn:hover {
+    background: #e9ecef;
+    border-color: #bbb;
+    color: #333;
+}
+
 .journal-select {
     max-height: 150px;
     overflow-y: auto;
