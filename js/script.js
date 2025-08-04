@@ -127,7 +127,13 @@ function initializeJournals() {
         "Journal of Econometrics",
         "Journal of Economic Literature",
         "AEJ: Applied Economics",
-        "AEJ: Economic Policy"
+        "AEJ: Economic Policy",
+        "Journal of European Economic Association",
+        "Journal of Finance",
+        "Journal of Financial Economics",
+        "Journal of Labor Economics",
+        "Journal of Public Economics",
+        "The Review of Financial Studies"
     ].sort();
     
     allJournals = journals;
