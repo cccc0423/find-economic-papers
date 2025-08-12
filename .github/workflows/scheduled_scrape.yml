@@ -1,0 +1,45 @@
+name: Scheduled Scrape
+
+on:
+  schedule:
+    - cron: '0 8 1 * *' # Runs at 08:00 UTC on the 1st day of every month
+  workflow_dispatch: # Allows manual triggering from the Actions tab
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run scraper for the current year
+        run: python scraper.py --years $(date +'%Y')
+
+      - name: Update files.json
+        run: bash create_files_json.sh
+
+      - name: Update last updated date in index.html
+        run: sed -i "s/上次更新：[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/上次更新：$(date +'%%Y-%%m-%%d')/g" index.html
+
+      - name: Commit and push if data changed
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          # Check if there are any changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Automated Scrape: Updated data for $(date +'%%B %%Y')"
+            git push
+          fi

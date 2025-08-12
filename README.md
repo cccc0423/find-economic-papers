@@ -1,13 +1,13 @@
 # Find Economic Papers
 
-A web application for searching and browsing academic papers from major economics journals, with a Python scraper for collecting data.
+A web application for searching and browsing academic papers from major economics journals, with a Python scraper for collecting data and GitHub Actions for automation.
 
 ## Features
 
-- **Web Interface**: Interactive search with keyword filtering, year range selection, and journal filtering
-- **Mobile Responsive**: Optimized for both desktop and mobile viewing
-- **Fast Loading**: Single combined CSV file for optimal performance
-- **Advanced Search**: Support for exact phrase matching with quotes and keyword intersection
+- **Automated Data Updates**: A GitHub Action runs monthly to scrape the latest papers from the current year, ensuring the data is always up-to-date.
+- **Web Interface**: Interactive search with keyword filtering, year range selection, and journal filtering.
+- **Mobile Responsive**: Optimized for both desktop and mobile viewing.
+- **Advanced Search**: Support for exact phrase matching with quotes and keyword intersection.
 
 ## Supported Journals
 
@@ -21,116 +21,113 @@ A web application for searching and browsing academic papers from major economic
 - Journal of Economic Literature
 - AEJ: Applied Economics
 - AEJ: Economic Policy
+- Journal of Labor Economics
+- Journal of Public Economics
+- Journal of European Economic Association
+- Journal of Finance
+- Journal of Financial Economics
+- The Review of Financial Studies
 
 ## Web Application
 
-The web application provides a user-friendly interface to search through collected papers:
+The web application provides a user-friendly interface to search through collected papers. Simply open `index.html` in a modern web browser.
 
-1. Open `index.html` in a web browser
-2. Use the search interface to filter papers by:
-   - Keywords (supports exact phrases in quotes)
-   - Publication year range
-   - Journal selection
-3. Click on paper titles to view abstracts
+## Automation with GitHub Actions
 
-### Deployment
+This repository is configured to automatically update its data using GitHub Actions.
 
-For optimal performance on GitHub Pages or other static hosting:
+- **Schedule**: The workflow runs automatically on the first day of every month.
+- **Process**: It scrapes all supported journals for the **current calendar year**.
+- **Manual Trigger**: You can also manually run the workflow from the "Actions" tab of the GitHub repository.
 
-1. Run the data combination script:
-```bash
-cd data
-bash combine_csvs.sh
-```
+The workflow handles fetching the data, updating the necessary CSV files, and committing them back to the repository.
 
-This combines all individual CSV files into a single `all_papers.csv` file, reducing load times significantly.
+## Data Collection (Manual Scraper Usage)
 
-## Data Collection (Scraper)
+While the project is automated, you can still run the scraper manually to fetch data for specific journals or years.
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd find-economic-papers
-```
+1.  Clone the repository:
+    ```bash
+    git clone <repository-url>
+    cd find-economic-papers
+    ```
 
-2. Create a virtual environment:
-```bash
-python3 -m venv venv
-```
+2.  Create and activate a virtual environment:
+    ```bash
+    # Create the environment
+    python3 -m venv venv
 
-3. Activate the virtual environment:
-```bash
-# On macOS/Linux:
-source venv/bin/activate
+    # Activate it (on macOS/Linux)
+    source venv/bin/activate
+    ```
 
-# On Windows:
-venv\Scripts\activate
-```
-
-4. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+3.  Install dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ### Usage
 
-Run the scraper:
-```bash
-python scraper.py
-```
+The scraper now accepts command-line arguments.
 
-Follow the interactive prompts to:
-1. Select which journals to scrape (enter numbers separated by spaces, or 'all')
-2. Choose the year range for paper collection
+**Examples:**
 
-The scraper will create CSV files with the collected paper information.
+- **Scrape the current year for all journals (default behavior):**
+  ```bash
+  python scraper.py
+  ```
+
+- **Scrape a specific year (e.g., 2023) for all journals:**
+  ```bash
+  python scraper.py --years 2023
+  ```
+
+- **Scrape multiple specific years:**
+  ```bash
+  python scraper.py --years "2023,2022,2021"
+  ```
+
+- **Scrape only specific journals for the current year:**
+  ```bash
+  python scraper.py --journals "American Economic Review,Econometrica"
+  ```
 
 ### Data Processing
 
-After scraping, combine the individual CSV files for web deployment:
+After scraping, you may want to update the `files.json` file, which is used by the web interface to know which CSV files are available.
 ```bash
-cd data
-bash combine_csvs.sh
+bash create_files_json.sh
 ```
+The GitHub Actions workflow runs this automatically.
 
 ## File Structure
 
 ```
 find-economic-papers/
+├── .github/workflows/scheduled_scrape.yml  # GitHub Actions workflow
 ├── index.html              # Main web interface
 ├── css/style.css           # Styling for web interface
-├── js/script.js           # JavaScript for search functionality
-├── data/                  # Data directory
-│   ├── combine_csvs.sh    # Script to combine CSV files
-│   ├── all_papers.csv     # Combined data file (generated)
-│   └── *.csv             # Individual journal/year CSV files
-├── scraper.py            # Python scraper script
-├── requirements.txt      # Python dependencies
-└── README.md            # This file
+├── js/script.js            # JavaScript for search functionality
+├── data/                   # Data directory
+│   ├── files.json          # Index of all available CSV files
+│   └── *.csv               # Individual journal/year CSV files
+├── scraper.py              # Python scraper script
+├── create_files_json.sh    # Script to update files.json
+├── requirements.txt        # Python dependencies
+└── README.md               # This file
 ```
-
-## Output Data Format
-
-The CSV files contain:
-- Paper titles
-- Authors
-- Journal names
-- Publication years
-- Abstracts
-- Links to papers (when available)
 
 ## Requirements
 
 ### Web Application
-- Modern web browser with JavaScript enabled
-- Static web server (for local development) or hosting service
+- A modern web browser with JavaScript enabled.
 
 ### Scraper
 - Python 3.7+
-- requests
-- beautifulsoup4
+- `requests`
+- `beautifulsoup4`
 
 ## Note
 

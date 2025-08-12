@@ -4,6 +4,8 @@ import csv
 import os
 import re
 import time
+import argparse
+import datetime
 
 def get_year_urls(soup, base_url):
     """Creates a mapping of years to lists of unique URLs where their papers are listed."""
@@ -111,6 +113,21 @@ def scrape_papers_for_year(page_soup, journal_name, year, base_url):
 
 def main():
     """Main function to scrape journals and save to CSV."""
+    parser = argparse.ArgumentParser(description="Scrape economic paper data from econpapers.repec.org.")
+    parser.add_argument(
+        '--journals', 
+        type=str, 
+        default='all',
+        help='Comma-separated list of journal names to scrape. Use "all" for all journals.'
+    )
+    parser.add_argument(
+        '--years', 
+        type=str,
+        default=str(datetime.date.today().year),
+        help='Comma-separated list of years to scrape. Use "all" to attempt to scrape all available years, or specify years like "2023,2022". Defaults to the current year.'
+    )
+    args = parser.parse_args()
+
     journals = {
         "American Economic Review": "https://econpapers.repec.org/article/aeaaecrev/",
         "The Quarterly Journal of Economics": "https://econpapers.repec.org/article/oupqjecon/",
@@ -130,17 +147,16 @@ def main():
         "The Review of Financial Studies": "https://econpapers.repec.org/article/ouprfinst/"
     }
 
-    print("Available journals:")
-    for i, journal_name in enumerate(journals.keys(), 1):
-        print(f"{i}. {journal_name}")
-
-    selected_journal_indices = input("Select journals to scrape (e.g., 1 2 4, or 'all'): ").lower().strip("'\"")
-    if selected_journal_indices == 'all':
+    if args.journals.lower() == 'all':
         selected_journals = list(journals.keys())
     else:
-        selected_journals = [list(journals.keys())[int(i) - 1] for i in selected_journal_indices.split()]
+        selected_journals = [j.strip() for j in args.journals.split(',')]
 
     for journal_name in selected_journals:
+        if journal_name not in journals:
+            print(f"Journal '{journal_name}' not found in the predefined list. Skipping.")
+            continue
+            
         url = journals[journal_name]
         print(f"\nFetching available years for {journal_name}...")
         try:
@@ -154,12 +170,10 @@ def main():
                 print(f"Could not find available years for {journal_name}.")
                 continue
 
-            print(f"Available years: {available_years}")
-            selected_years_str = input(f"Select years for {journal_name} (e.g., 2023 2022, or 'all'): ").lower()
-            if selected_years_str == 'all':
+            if args.years.lower() == 'all':
                 selected_years = available_years
             else:
-                selected_years = [int(y) for y in selected_years_str.split()]
+                selected_years = [int(y.strip()) for y in args.years.split(',')]
 
             for year in selected_years:
                 if year not in year_urls:
