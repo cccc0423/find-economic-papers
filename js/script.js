@@ -6,11 +6,12 @@ let searchDebounceTimer = null;
 let searchCache = new Map(); // Cache for search results
 let currentResults = [];
 let displayedCount = 50; // Initial number of results to display
+let availableDataFiles = [];
 
 // Initialize the app without loading any data
 async function loadData() {
     try {
-        // Initialize with predefined journal list
+        await loadAvailableDataFiles();
         initializeJournals();
         setupEventListeners();
         
@@ -22,6 +23,25 @@ async function loadData() {
         console.error('Error initializing app:', error);
         document.getElementById('results').innerHTML = 
             '<div class="no-results">應用程式初始化失敗</div>';
+    }
+}
+
+// Load the generated CSV index so newly scraped years are available automatically
+async function loadAvailableDataFiles() {
+    try {
+        const response = await fetch('data/files.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const files = await response.json();
+        availableDataFiles = files
+            .filter(file => typeof file === 'string' && file.endsWith('.csv'))
+            .map(file => file.replace(/^\.\//, ''))
+            .sort();
+    } catch (error) {
+        console.warn('Failed to load data/files.json; falling back to generated year list:', error);
+        availableDataFiles = [];
     }
 }
 
@@ -44,12 +64,8 @@ async function loadJournalDataIfNeeded(journalName, isChecked) {
             .replace('AEJ_Applied_Economics', 'AEJ_Applied_Economics')
             .replace('AEJ_Economic_Policy', 'AEJ_Economic_Policy');
         
-        // Load all years for this journal
-        const years = [2020, 2021, 2022, 2023, 2024, 2025];
-        const loadPromises = years.map(year => {
-            const filename = `${filePrefix}_${year}.csv`;
-            return loadCSVFile(`data/${filename}`);
-        });
+        const dataFiles = getJournalDataFiles(filePrefix);
+        const loadPromises = dataFiles.map(filePath => loadCSVFile(filePath));
         
         const yearData = await Promise.all(loadPromises);
         const journalPapers = yearData.flat().filter(paper => paper && Object.keys(paper).length > 0);
@@ -67,6 +83,21 @@ async function loadJournalDataIfNeeded(journalName, isChecked) {
     } finally {
         loadingJournals.delete(journalName);
     }
+}
+
+function getJournalDataFiles(filePrefix) {
+    const prefix = `data/${filePrefix}_`;
+
+    if (availableDataFiles.length > 0) {
+        return availableDataFiles.filter(filePath => filePath.startsWith(prefix));
+    }
+
+    const startYear = 2020;
+    const currentYear = new Date().getFullYear();
+    return Array.from(
+        { length: currentYear - startYear + 1 },
+        (_, index) => `data/${filePrefix}_${startYear + index}.csv`
+    );
 }
 
 // Update loading status with better UX
