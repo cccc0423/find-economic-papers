@@ -387,6 +387,7 @@ function displayResults(papers) {
     // Setup intersection observer for infinite scroll
     if (totalCount > displayedCount) {
         setupInfiniteScroll();
+    }
 }
 
 // Shuffle the current search results and redisplay them
