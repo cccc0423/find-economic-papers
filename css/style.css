@@ -199,6 +199,35 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
     margin-bottom: 20px;
     font-weight: 600;
     color: #2980b9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.shuffle-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.shuffle-btn:hover {
+    background: #2980b9;
+}
+
+.shuffle-btn:active {
+    background: #1f618d;
+    transform: scale(0.97);
 }
 
 .load-more-hint {

@@ -197,6 +197,14 @@ function setupEventListeners() {
     
     // Deselect all button
     document.getElementById('deselectAllBtn').addEventListener('click', deselectAllJournals);
+    
+    // Shuffle button click delegation
+    document.getElementById('resultsInfo').addEventListener('click', (event) => {
+        const shuffleBtn = event.target.closest('#shuffleBtn');
+        if (shuffleBtn) {
+            shuffleResults();
+        }
+    });
 }
 
 // Select all journals
@@ -355,10 +363,17 @@ function displayResults(papers) {
     const showingCount = Math.min(displayedCount, totalCount);
     
     resultsInfo.innerHTML = `
-        找到 ${totalCount} 篇論文 ${totalCount > displayedCount ? `（顯示前 ${showingCount} 篇）` : ''}
-        ${totalCount > displayedCount ? '<span class="load-more-hint">向下滾動載入更多</span>' : ''}
+        <div class="results-text">
+            找到 ${totalCount} 篇論文 ${totalCount > displayedCount ? `（顯示前 ${showingCount} 篇）` : ''}
+            ${totalCount > displayedCount ? '<span class="load-more-hint">向下滾動載入更多</span>' : ''}
+        </div>
+        ${totalCount > 1 ? `
+            <button type="button" id="shuffleBtn" class="shuffle-btn">
+                <span>🔀 打散順序</span>
+            </button>
+        ` : ''}
     `;
-    resultsInfo.style.display = 'block';
+    resultsInfo.style.display = 'flex';
 
     const papersToShow = papers.slice(0, displayedCount);
     
@@ -372,7 +387,21 @@ function displayResults(papers) {
     // Setup intersection observer for infinite scroll
     if (totalCount > displayedCount) {
         setupInfiniteScroll();
+}
+
+// Shuffle the current search results and redisplay them
+function shuffleResults() {
+    if (currentResults.length <= 1) return;
+    
+    // Create a copy to avoid mutating cache
+    const shuffled = [...currentResults];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
+    
+    currentResults = shuffled;
+    displayResults(currentResults);
 }
 
 // Render individual paper card
