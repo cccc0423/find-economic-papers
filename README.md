@@ -27,6 +27,9 @@ A web application for searching and browsing academic papers from major economic
 - Journal of Finance
 - Journal of Financial Economics
 - The Review of Financial Studies
+- Journal of Business and Economic Statistics
+- Biometrika
+- Journal of the American Statistical Association
 
 ## Web Application
 

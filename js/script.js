@@ -57,12 +57,11 @@ async function loadJournalDataIfNeeded(journalName, isChecked) {
         // Show loading indicator
         updateLoadingStatus(`載入 ${journalName} 資料中...`);
         
-        // Convert journal name to filename format
+        // Convert journal name to filename format using regex to match Python's file saving behavior
         const filePrefix = journalName
-            .replace(/:/g, '')
-            .replace(/\s+/g, '_')
-            .replace('AEJ_Applied_Economics', 'AEJ_Applied_Economics')
-            .replace('AEJ_Economic_Policy', 'AEJ_Economic_Policy');
+            .replace(/[^\w\s-]/g, '')
+            .trim()
+            .replace(/ /g, '_');
         
         const dataFiles = getJournalDataFiles(filePrefix);
         const loadPromises = dataFiles.map(filePath => loadCSVFile(filePath));
@@ -164,7 +163,10 @@ function initializeJournals() {
         "Journal of Financial Economics",
         "Journal of Labor Economics",
         "Journal of Public Economics",
-        "The Review of Financial Studies"
+        "The Review of Financial Studies",
+        "Journal of Business and Economic Statistics",
+        "Biometrika",
+        "Journal of the American Statistical Association"
     ].sort();
     
     allJournals = journals;

@@ -144,7 +144,10 @@ def main():
         "Journal of European Economic Association": "https://econpapers.repec.org/article/oupjeurec/",
         "Journal of Finance": "https://econpapers.repec.org/article/blajfinan/",
         "Journal of Financial Economics": "https://econpapers.repec.org/article/eeejfinec/",
-        "The Review of Financial Studies": "https://econpapers.repec.org/article/ouprfinst/"
+        "The Review of Financial Studies": "https://econpapers.repec.org/article/ouprfinst/",
+        "Journal of Business and Economic Statistics": "https://econpapers.repec.org/article/tafjnlbes/",
+        "Biometrika": "https://econpapers.repec.org/article/oupbiomet/",
+        "Journal of the American Statistical Association": "https://econpapers.repec.org/article/tafjnlasa/"
     }
 
     if args.journals.lower() == 'all':
