@@ -6,6 +6,7 @@ let searchDebounceTimer = null;
 let searchCache = new Map(); // Cache for search results
 let currentResults = [];
 let displayedCount = 50; // Initial number of results to display
+let resultsObserver = null;
 let availableDataFiles = [];
 
 // Initialize the app without loading any data
@@ -350,10 +351,12 @@ function performSearchWithCache() {
     searchCache.set(cacheKey, currentResults);
 }
 
-// Display results in the UI with pagination
+// Display results progressively to avoid rendering a large result set at once
 function displayResults(papers) {
     const resultsInfo = document.getElementById('resultsInfo');
     const results = document.getElementById('results');
+
+    disconnectResultsObserver();
     
     if (papers.length === 0) {
         resultsInfo.textContent = '沒有找到符合條件的論文';
@@ -362,12 +365,9 @@ function displayResults(papers) {
     }
 
     const totalCount = papers.length;
-    const showingCount = Math.min(displayedCount, totalCount);
-    
     resultsInfo.innerHTML = `
         <div class="results-text">
-            找到 ${totalCount} 篇論文 ${totalCount > displayedCount ? `（顯示前 ${showingCount} 篇）` : ''}
-            ${totalCount > displayedCount ? '<span class="load-more-hint">向下滾動載入更多</span>' : ''}
+            找到 ${totalCount} 篇論文
         </div>
         ${totalCount > 1 ? `
             <button type="button" id="shuffleBtn" class="shuffle-btn" title="Shuffle Results">
@@ -449,12 +449,19 @@ function renderPaperCard(paper) {
     `;
 }
 
-// Setup infinite scroll using Intersection Observer
+function disconnectResultsObserver() {
+    if (resultsObserver) {
+        resultsObserver.disconnect();
+        resultsObserver = null;
+    }
+}
+
+// Render the next batch when the invisible sentinel approaches the viewport
 function setupInfiniteScroll() {
     const loadMoreTrigger = document.getElementById('loadMoreTrigger');
     if (!loadMoreTrigger) return;
     
-    const observer = new IntersectionObserver((entries) => {
+    resultsObserver = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
             loadMoreResults();
         }
@@ -462,50 +469,34 @@ function setupInfiniteScroll() {
         rootMargin: '100px'
     });
     
-    observer.observe(loadMoreTrigger);
+    resultsObserver.observe(loadMoreTrigger);
 }
 
-// Load more results
+// Append more result cards without changing the results header
 function loadMoreResults() {
     const currentlyDisplayed = document.querySelectorAll('.paper-card').length;
     const remainingResults = currentResults.length - currentlyDisplayed;
     
     if (remainingResults <= 0) return;
     
-    const nextBatch = Math.min(25, remainingResults);
+    const nextBatch = Math.min(50, remainingResults);
     const startIndex = currentlyDisplayed;
     const endIndex = startIndex + nextBatch;
     
     const resultsContainer = document.querySelector('.results-container');
     const loadMoreTrigger = document.getElementById('loadMoreTrigger');
-    
-    // Add loading indicator
-    const loadingIndicator = document.createElement('div');
-    loadingIndicator.className = 'loading-more';
-    loadingIndicator.textContent = '載入更多...';
-    resultsContainer.insertBefore(loadingIndicator, loadMoreTrigger);
-    
-    // Simulate slight delay for better UX
-    setTimeout(() => {
-        const newItems = currentResults.slice(startIndex, endIndex)
-            .map(paper => renderPaperCard(paper))
-            .join('');
-        
-        loadingIndicator.outerHTML = newItems;
-        
-        // Update results info
-        const resultsInfo = document.getElementById('resultsInfo');
-        const newDisplayedCount = Math.min(endIndex, currentResults.length);
-        resultsInfo.innerHTML = `
-            找到 ${currentResults.length} 篇論文 ${currentResults.length > newDisplayedCount ? `（顯示前 ${newDisplayedCount} 篇）` : ''}
-            ${currentResults.length > newDisplayedCount ? '<span class="load-more-hint">向下滾動載入更多</span>' : ''}
-        `;
-        
-        // Remove load more trigger if all results are shown
-        if (newDisplayedCount >= currentResults.length && loadMoreTrigger) {
-            loadMoreTrigger.remove();
-        }
-    }, 200);
+    if (!resultsContainer || !loadMoreTrigger) return;
+
+    const newItems = currentResults.slice(startIndex, endIndex)
+        .map(paper => renderPaperCard(paper))
+        .join('');
+
+    loadMoreTrigger.insertAdjacentHTML('beforebegin', newItems);
+
+    if (endIndex >= currentResults.length) {
+        disconnectResultsObserver();
+        loadMoreTrigger.remove();
+    }
 }
 
 // Switch abstract visibility
