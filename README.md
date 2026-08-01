@@ -4,7 +4,7 @@ A web application for searching and browsing academic papers from major economic
 
 ## Features
 
-- **Automated Data Updates**: A GitHub Action runs monthly to scrape the latest papers from the current year, ensuring the data is always up-to-date.
+- **Automated Data Updates**: A GitHub Action runs every Saturday to scrape the latest papers from the current year, ensuring the data is always up-to-date.
 - **Web Interface**: Interactive search with keyword filtering, year range selection, and journal filtering.
 - **Mobile Responsive**: Optimized for both desktop and mobile viewing.
 - **Advanced Search**: Support for exact phrase matching with quotes and keyword intersection.
@@ -39,7 +39,7 @@ The web application provides a user-friendly interface to search through collect
 
 This repository is configured to automatically update its data using GitHub Actions.
 
-- **Schedule**: The workflow runs automatically on the first day of every month.
+- **Schedule**: The workflow runs every Saturday at 08:17 UTC (16:17 Asia/Taipei).
 - **Process**: It scrapes all supported journals for the **current calendar year**.
 - **Manual Trigger**: You can also manually run the workflow from the "Actions" tab of the GitHub repository.
 

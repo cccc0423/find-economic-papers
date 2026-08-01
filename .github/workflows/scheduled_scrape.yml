@@ -2,7 +2,8 @@ name: Scheduled Scrape
 
 on:
   schedule:
-    - cron: '0 8 1 * *' # Runs at 08:00 UTC on the 1st day of every month
+    # Every Saturday at 08:17 UTC (16:17 Asia/Taipei).
+    - cron: '17 8 * * 6'
   workflow_dispatch: # Allows manual triggering from the Actions tab
 
 jobs:
