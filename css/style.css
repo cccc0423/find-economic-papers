@@ -355,14 +355,9 @@ button {
 }
 
 .paper-year {
-    margin-left: 0.375rem;
     color: var(--muted);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
-}
-
-.paper-separator {
-    margin-right: 0.375rem;
 }
 
 .paper-authors {
