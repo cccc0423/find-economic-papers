@@ -419,22 +419,15 @@ function renderPaperCard(paper) {
                     }
                 </div>
                 <div class="paper-meta">
-                    <div class="meta-item">
-                        <span class="meta-label">Journal:</span>
-                        <span>${paper.journal}</span>
+                    <div class="paper-publication">
+                        <span class="paper-journal">${paper.journal}</span>
+                        <span class="paper-year"><span class="paper-separator" aria-hidden="true">·</span> ${paper.year}</span>
                     </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Year:</span>
-                        <span>${paper.year}</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Authors:</span>
-                        <span>${paper.authors}</span>
-                    </div>
+                    <div class="paper-authors">${paper.authors}</div>
                 </div>
             </div>
-            <button class="abstract-toggle" onclick="toggleAbstract(this)">
-                Abstract ▼
+            <button type="button" class="abstract-toggle" aria-expanded="false" onclick="toggleAbstract(this)">
+                Abstract ►
             </button>
             <div class="abstract-content">
                 ${paper.abstract}
@@ -497,13 +490,14 @@ function loadMoreResults() {
 function toggleAbstract(button) {
     const content = button.nextElementSibling;
     const isShowing = content.classList.contains('show');
+    button.setAttribute('aria-expanded', String(!isShowing));
     
     if (isShowing) {
         content.classList.remove('show');
-        button.textContent = 'Abstract ▼';
+        button.textContent = 'Abstract ►';
     } else {
         content.classList.add('show');
-        button.textContent = 'Abstract ▲';
+        button.textContent = 'Abstract ▼';
     }
 }
 
