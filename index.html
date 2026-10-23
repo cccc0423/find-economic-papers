@@ -1,51 +1,65 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find Economic Papers</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container">
-      <h1>Find Economic Papers</h1>
-        <div class="panel-header">
-            <div class="error-report-banner">錯誤回報：<a href="mailto:r12323020@ntu.edu.tw">r12323020@ntu.edu.tw</a></div>
-        </div>
-        <div class="search-panel">
-            <div class="search-row">
-                <div class="search-group">
-                    <label for="keywords">關鍵字搜尋 <span class="search-tip-inline">（以空格搜尋關鍵字的交集；以雙引號 "詞組" 精確搜尋）</span></label>
-                    <input type="text" id="keywords" placeholder="輸入關鍵字...">
-                </div>
-                <div class="search-group">
-                    <label>年份區間 <span class="search-tip-inline">（資料起始年份：2020；上次更新：2026-10-17）</span></label>
-                    <div class="year-group">
-                        <input type="number" id="yearFrom" placeholder="起始年" min="1900" max="2030">
-                        <input type="number" id="yearTo" placeholder="結束年" min="1900" max="2030">
+        <main>
+            <div class="page-heading">
+                <h1>Find Economic Papers</h1>
+                <p class="data-info">Coverage: 2020 onwards · Last updated: 2026-10-17</p>
+            </div>
+            <section class="search-panel" aria-label="Paper search">
+                <div class="search-row">
+                    <div class="search-group">
+                        <label for="keywords" class="section-label">Keywords</label>
+                        <input type="text" id="keywords" placeholder="e.g. (labor OR employment) -migration" aria-describedby="searchTips searchError">
+                        <p id="searchTips" class="search-tips">
+                            Spaces mean AND; <code>"phrase"</code> for exact matches; <code>-word</code> or <code>-"phrase"</code> to exclude; <code>OR</code> and <code>( )</code> to group alternatives.<br>
+                            Fields: <code>title:</code>, <code>author:</code>, <code>abstract:</code>.
+                        </p>
+                        <p id="searchError" class="search-error" role="status" aria-live="polite" hidden></p>
+                    </div>
+                    <div class="search-group">
+                        <label for="yearFrom" class="section-label">Year range</label>
+                        <div class="year-group">
+                            <input type="number" id="yearFrom" placeholder="From" aria-label="Start year" min="1900" max="2030">
+                            <input type="number" id="yearTo" placeholder="To" aria-label="End year" min="1900" max="2030">
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="search-group">
-                <div class="journal-header">
-                    <label>期刊選擇 <span class="search-tip-inline">（可複選）</span></label>
-                    <div class="journal-controls">
-                        <button type="button" id="selectAllBtn" class="select-all-btn">全選</button>
-                        <button type="button" id="deselectAllBtn" class="select-all-btn">全不選</button>
-                    </div>
-                </div>
-                <div class="journal-select" id="journalSelect">
-                    <div class="loading">載入中...</div>
-                </div>
-            </div>
-        </div>
 
-        <div id="resultsInfo" class="results-info" style="display: none;"></div>
-        <div id="results"></div>
+                <div class="search-group">
+                    <div class="journal-header">
+                        <label class="section-label">Journals <span class="search-tip-inline">(select one or more)</span></label>
+                        <div class="journal-controls">
+                            <button type="button" id="selectAllBtn" class="select-all-btn">Select all</button>
+                            <button type="button" id="deselectAllBtn" class="select-all-btn">Deselect all</button>
+                        </div>
+                    </div>
+                    <div class="journal-select" id="journalSelect">
+                        <div class="loading">Loading journals…</div>
+                    </div>
+                </div>
+            </section>
+
+            <div id="resultsInfo" class="results-info" role="status" aria-live="polite" style="display: none;"></div>
+            <div id="results" aria-label="Search results"></div>
+        </main>
+        <footer class="site-footer">
+            <a href="mailto:r12323020@ntu.edu.tw">Report an issue</a>
+        </footer>
     </div>
 
+    <script src="js/search.js"></script>
     <script src="js/script.js"></script>
 </body>
 </html>

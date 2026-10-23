@@ -32,7 +32,8 @@ jobs:
         run: bash create_files_json.sh
 
       - name: Update last updated date in index.html
-        run: sed -i "s/上次更新：[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/上次更新：$(date +'%Y-%m-%d')/g" index.html
+        run: |
+          sed -i "s/Last updated: [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/Last updated: $(date +'%Y-%m-%d')/g" index.html
 
       - name: Commit and push if data changed
         run: |

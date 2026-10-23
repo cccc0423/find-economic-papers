@@ -16,14 +16,10 @@ async function loadData() {
         initializeJournals();
         setupEventListeners();
         
-        // Show empty state initially
-        document.getElementById('results').innerHTML = 
-            '<div class="no-results">請選擇期刊以載入資料</div>';
-        
     } catch (error) {
         console.error('Error initializing app:', error);
         document.getElementById('results').innerHTML = 
-            '<div class="no-results">應用程式初始化失敗</div>';
+            '<div class="no-results">Unable to initialize the application. Please reload the page.</div>';
     }
 }
 
@@ -56,7 +52,7 @@ async function loadJournalDataIfNeeded(journalName, isChecked) {
     
     try {
         // Show loading indicator
-        updateLoadingStatus(`載入 ${journalName} 資料中...`);
+        updateLoadingStatus(`Loading ${journalName}…`);
         
         // Convert journal name to filename format using regex to match Python's file saving behavior
         const filePrefix = journalName
@@ -72,13 +68,14 @@ async function loadJournalDataIfNeeded(journalName, isChecked) {
         
         // Add to allPapers
         allPapers = allPapers.concat(journalPapers);
+        searchCache.clear();
         loadedJournals.add(journalName);
         
         updateLoadingStatus('');
         
     } catch (error) {
         console.error(`Error loading data for ${journalName}:`, error);
-        updateLoadingStatus(`載入 ${journalName} 資料失敗`);
+        updateLoadingStatus(`Could not load ${journalName}.`);
         setTimeout(() => updateLoadingStatus(''), 3000);
     } finally {
         loadingJournals.delete(journalName);
@@ -235,11 +232,35 @@ function deselectAllJournals() {
     performSearch();
 }
 
-// Perform search based on inputs
+function updateSearchError(message = '') {
+    const input = document.getElementById('keywords');
+    const error = document.getElementById('searchError');
+    input.setAttribute('aria-invalid', message ? 'true' : 'false');
+    error.textContent = message;
+    error.hidden = !message;
+}
+
+// Perform search based on inputs; report syntax errors without caching them.
 function performSearch() {
-    const keywords = document.getElementById('keywords').value.toLowerCase().trim();
+    const keywords = document.getElementById('keywords').value.trim();
     const yearFrom = parseInt(document.getElementById('yearFrom').value) || 0;
     const yearTo = parseInt(document.getElementById('yearTo').value) || 9999;
+
+    let matchesQuery;
+    try {
+        matchesQuery = compileSearchQuery(keywords);
+    } catch (error) {
+        updateSearchError(error.message);
+        currentResults = [];
+        disconnectResultsObserver();
+        const resultsInfo = document.getElementById('resultsInfo');
+        resultsInfo.textContent = 'Check your search syntax';
+        resultsInfo.style.display = 'block';
+        document.getElementById('results').innerHTML =
+            '<div class="no-results">Correct the search syntax to see results.</div>';
+        return false;
+    }
+    updateSearchError();
     
     // Extract selected journals
     const selectedJournals = [];
@@ -256,36 +277,7 @@ function performSearch() {
         // Journal
         if (!selectedJournals.includes(paper.journal)) return false;
         
-        // Keywords
-        if (keywords) {
-            // Parse keywords: handle exact phrases in quotes and individual words
-            const exactPhrases = [];
-            const individualWords = [];
-            
-            // Regex to find quoted phrases or individual words
-            const regex = /"([^"]*)"|(\S+)/g;
-            let match;
-            while ((match = regex.exec(keywords)) !== null) {
-                if (match[1]) { // Quoted phrase
-                    exactPhrases.push(match[1].toLowerCase());
-                } else if (match[2]) { // Individual word
-                    individualWords.push(match[2].toLowerCase());
-                }
-            }
-
-            const searchText = `${paper.journal} ${paper.year} ${paper.title} ${paper.authors} ${paper.abstract}`.toLowerCase();
-            
-            // Check for exact phrase matches (AND condition for all phrases)
-            const allPhrasesMatch = exactPhrases.every(phrase => searchText.includes(phrase));
-            if (!allPhrasesMatch) return false;
-
-            // Check for individual word matches (AND condition for all words)
-            // If there are no individual words, this condition is considered true
-            const allIndividualWordsMatch = individualWords.length === 0 || individualWords.every(word => searchText.includes(word));
-            if (!allIndividualWordsMatch) return false;
-        }
-        
-        return true;
+        return matchesQuery(paper);
     });
 
     // Sort results by year (descending), then by title
@@ -293,13 +285,14 @@ function performSearch() {
         const yearA = parseInt(a.year);
         const yearB = parseInt(b.year);
         if (yearA !== yearB) {
-            return yearB - yearA; // 由新到舊排序
+            return yearB - yearA; // Newest first
         }
         return a.title.localeCompare(b.title);
     });
 
     currentResults = filteredPapers;
     displayResults(currentResults);
+    return true;
 }
 
 // Debounced search function
@@ -310,7 +303,7 @@ function debouncedSearch() {
     
     // Show searching indicator
     const resultsInfo = document.getElementById('resultsInfo');
-    resultsInfo.textContent = '搜尋中...';
+    resultsInfo.textContent = 'Searching…';
     resultsInfo.style.display = 'block';
     
     searchDebounceTimer = setTimeout(() => {
@@ -320,7 +313,7 @@ function debouncedSearch() {
 
 // Perform search with caching
 function performSearchWithCache() {
-    const keywords = document.getElementById('keywords').value.toLowerCase().trim();
+    const keywords = document.getElementById('keywords').value.trim();
     const yearFrom = parseInt(document.getElementById('yearFrom').value) || 0;
     const yearTo = parseInt(document.getElementById('yearTo').value) || 9999;
     
@@ -331,20 +324,21 @@ function performSearchWithCache() {
     });
     
     // Create cache key
-    const cacheKey = `${keywords}-${yearFrom}-${yearTo}-${selectedJournals.sort().join(',')}`;
+    const cacheKey = JSON.stringify([keywords, yearFrom, yearTo, selectedJournals.sort()]);
     
     // Check cache first
     if (searchCache.has(cacheKey)) {
+        updateSearchError();
         currentResults = searchCache.get(cacheKey);
         displayResults(currentResults);
         return;
     }
     
     // Perform actual search
-    performSearch();
+    if (!performSearch()) return;
     
     // Cache results (limit cache size to prevent memory issues)
-    if (searchCache.size > 100) {
+    if (searchCache.size >= 100) {
         const firstKey = searchCache.keys().next().value;
         searchCache.delete(firstKey);
     }
@@ -357,17 +351,18 @@ function displayResults(papers) {
     const results = document.getElementById('results');
 
     disconnectResultsObserver();
+    resultsInfo.style.display = 'flex';
     
     if (papers.length === 0) {
-        resultsInfo.textContent = '沒有找到符合條件的論文';
-        results.innerHTML = '<div class="no-results">沒有找到符合條件的論文</div>';
+        resultsInfo.textContent = 'No papers match your search.';
+        results.innerHTML = '<div class="no-results">No papers match your search.</div>';
         return;
     }
 
     const totalCount = papers.length;
     resultsInfo.innerHTML = `
         <div class="results-text">
-            找到 ${totalCount} 篇論文
+            Found ${totalCount} ${totalCount === 1 ? 'paper' : 'papers'}
         </div>
         ${totalCount > 1 ? `
             <button type="button" id="shuffleBtn" class="shuffle-btn" title="Shuffle Results">
@@ -381,7 +376,6 @@ function displayResults(papers) {
             </button>
         ` : ''}
     `;
-    resultsInfo.style.display = 'flex';
 
     const papersToShow = papers.slice(0, displayedCount);
     
@@ -426,21 +420,21 @@ function renderPaperCard(paper) {
                 </div>
                 <div class="paper-meta">
                     <div class="meta-item">
-                        <span class="meta-label">期刊：</span>
+                        <span class="meta-label">Journal:</span>
                         <span>${paper.journal}</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">年份：</span>
+                        <span class="meta-label">Year:</span>
                         <span>${paper.year}</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">作者：</span>
+                        <span class="meta-label">Authors:</span>
                         <span>${paper.authors}</span>
                     </div>
                 </div>
             </div>
             <button class="abstract-toggle" onclick="toggleAbstract(this)">
-                摘要 ▼
+                Abstract ▼
             </button>
             <div class="abstract-content">
                 ${paper.abstract}
@@ -506,10 +500,10 @@ function toggleAbstract(button) {
     
     if (isShowing) {
         content.classList.remove('show');
-        button.textContent = '摘要 ▼';
+        button.textContent = 'Abstract ▼';
     } else {
         content.classList.add('show');
-        button.textContent = '摘要 ▲';
+        button.textContent = 'Abstract ▲';
     }
 }
 

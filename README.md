@@ -7,7 +7,7 @@ A web application for searching and browsing academic papers from major economic
 - **Automated Data Updates**: A GitHub Action runs every Saturday to scrape the latest papers from the current year, ensuring the data is always up-to-date.
 - **Web Interface**: Interactive search with keyword filtering, year range selection, and journal filtering.
 - **Mobile Responsive**: Optimized for both desktop and mobile viewing.
-- **Advanced Search**: Support for exact phrase matching with quotes and keyword intersection.
+- **Advanced Search**: Exact phrases, keyword intersection, exclusions, OR with parentheses, and title/author/abstract filters in a single search box.
 
 ## Supported Journals
 
@@ -34,6 +34,32 @@ A web application for searching and browsing academic papers from major economic
 ## Web Application
 
 The web application provides a user-friendly interface to search through collected papers. Simply open `index.html` in a modern web browser.
+
+### Search syntax
+
+| Query | Matches |
+| --- | --- |
+| `labor market` | Both terms, anywhere in the paper's metadata or abstract |
+| `"labor market"` | The exact, continuous phrase |
+| `inflation -housing` | Inflation, excluding papers containing housing |
+| `trade -"trade war"` | Trade, excluding the exact phrase trade war |
+| `(inequality OR poverty) education` | Education and at least one of inequality or poverty |
+| `title:inflation` | Inflation in the title only |
+| `author:Acemoglu` | Acemoglu in the authors only |
+| `abstract:"natural experiment"` | The phrase natural experiment in the abstract only |
+| `title:(labor OR employment) -author:Smith` | Either term in the title, excluding authors containing Smith |
+
+Terms and field names are case-insensitive; the `OR` operator must be uppercase. Spaces mean AND, which takes precedence over OR; use parentheses to make grouping explicit. A field prefix applies to the next term, quoted phrase, or parenthesized group. Exclusions can also apply to fields or groups, such as `-title:survey` or `-(housing OR migration)`.
+
+Matching uses substrings, as before: `tax` also matches `taxation`, and `-tax` excludes both. Without a field prefix, search covers the journal, year, title, authors, and abstract. The selected journals and year range always constrain the final results, including queries with OR or exclusions only. Incomplete quotes, groups, and operators show a syntax hint below the search box.
+
+### Search tests
+
+Run the tests with Node.js 18 or later; no npm dependencies are required:
+
+```bash
+node --test
+```
 
 ## Automation with GitHub Actions
 
