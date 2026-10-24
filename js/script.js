@@ -427,7 +427,7 @@ function renderPaperCard(paper) {
                 </div>
             </div>
             <button type="button" class="abstract-toggle" aria-expanded="false" onclick="toggleAbstract(this)">
-                Abstract ►
+                Abstract [+]
             </button>
             <div class="abstract-content">
                 ${paper.abstract}
@@ -494,10 +494,10 @@ function toggleAbstract(button) {
     
     if (isShowing) {
         content.classList.remove('show');
-        button.textContent = 'Abstract ►';
+        button.textContent = 'Abstract [+]';
     } else {
         content.classList.add('show');
-        button.textContent = 'Abstract ▼';
+        button.textContent = 'Abstract [-]';
     }
 }
 
